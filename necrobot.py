@@ -125,12 +125,7 @@ async def transfer_necromancer_role(
         print("Failed to send message. Insufficient permissions.", flush=True)
     except Exception as e:
         print(f"Error sending message: {e}", flush=True)
-
-@bot.command(name="give_necromancer")
-@commands.has_permissions(administrator=True)
-async def give_necromancer(ctx, member: discord.Member):
-    await ctx.send("This command is disabled. The role is now automatically assigned.")
-
+        
 @bot.command(name="color")
 async def change_color(ctx, hex_color: str):
     necromancer_role = ctx.guild.get_role(NECROMANCER_ROLE_ID)
