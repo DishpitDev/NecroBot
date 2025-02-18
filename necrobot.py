@@ -36,12 +36,13 @@ async def on_message(message: discord.Message):
     if message.author == bot.user:
         return
 
+    if messages_debounce.get(message.author.id, 0) + DELAY_NEEDED_COINS < current_time.timestamp():
+        userdata = UserDataManager(message.author.id)
+        userdata["necrocoins"] += random.randint(10, 20)
+        messages_debounce[message.author.id] = current_time.timestamp()
+    
     if message.channel.id == GENCHAT_ID:
         current_time = message.created_at
-        if messages_debounce.get(message.author.id, 0) + DELAY_NEEDED_COINS < current_time.timestamp():
-            userdata = UserDataManager(message.author.id)
-            userdata["necrocoins"] += random.randint(10, 20)
-            messages_debounce[message.author.id] = current_time.timestamp()
 
         if not first_message_received:
             first_message_received = True
