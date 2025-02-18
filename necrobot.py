@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-GENCHAT_ID = int(os.getenv("GENCHAT_ID", 0)
-GRAVEYARD_ID = int(os.getenv("GRAVEYARD_ID", 0)
-NECROMANCER_ROLE_ID = int(os.getenv("NECROMANCER_ROLE_ID", 0)
+GENCHAT_ID = int(os.getenv("GENCHAT_ID", 0))
+GRAVEYARD_ID = int(os.getenv("GRAVEYARD_ID", 0))
+NECROMANCER_ROLE_ID = int(os.getenv("NECROMANCER_ROLE_ID", 0))
 
 if not TOKEN:
     raise ValueError("Missing DISCORD_BOT_TOKEN environment variable")
