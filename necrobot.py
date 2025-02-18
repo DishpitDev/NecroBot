@@ -40,7 +40,7 @@ async def on_message(message: discord.Message):
         userdata = UserDataManager(message.author.id)
         userdata["necrocoins"] += random.randint(10, 20)
         messages_debounce[message.author.id] = current_time.timestamp()
-    
+
     if message.channel.id == GENCHAT_ID:
         current_time = message.created_at
 
@@ -63,7 +63,7 @@ async def on_message(message: discord.Message):
 
 async def give_necromancer_role(member: discord.Member, channel: discord.TextChannel):
     global last_bot_message, necromancer_role_holder
-    
+
     userdata = UserDataManager(member.id)
     userdata["necrocoins"] += random.randint(100, 200)
 
@@ -78,7 +78,7 @@ async def give_necromancer_role(member: discord.Member, channel: discord.TextCha
             print("Previous bot message not found.", flush=True)
         except Exception as e:
             print(f"Error deleting previous bot message: {e}", flush=True)
-        
+
         last_bot_message = await channel.send(
             f"Gave the Necromancer role to {member.mention}!"
         )
@@ -97,10 +97,10 @@ async def transfer_necromancer_role(
         if necromancer_role in member.roles:
             previous_owner = member
             break
-    
+
     userdata = UserDataManager(new_owner.id)
     userdata["necrocoins"] += random.randint(100, 200)
-    
+
     if previous_owner:
         try:
             await previous_owner.remove_roles(
@@ -142,7 +142,7 @@ async def transfer_necromancer_role(
         print("Failed to send message. Insufficient permissions.", flush=True)
     except Exception as e:
         print(f"Error sending message: {e}", flush=True)
-        
+
 @bot.command(name="color")
 async def change_color(ctx, hex_color: str):
     necromancer_role = ctx.guild.get_role(NECROMANCER_ROLE_ID)
