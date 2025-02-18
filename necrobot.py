@@ -1,7 +1,9 @@
-﻿import discord
+﻿import random
+import discord
 from discord.ext import commands
 import datetime
 import os
+from userdata import UserDataManager
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,7 +12,8 @@ TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 GENCHAT_ID = int(os.getenv("GENCHAT_ID", 0))
 GRAVEYARD_ID = int(os.getenv("GRAVEYARD_ID", 0))
 NECROMANCER_ROLE_ID = int(os.getenv("NECROMANCER_ROLE_ID", 0))
-DELAY_NEEDED = int(os.getenv("DELAY_NEEDED", 600))
+DELAY_NEEDED_ROLE_STEAL = int(os.getenv("DELAY_NEEDED_ROLE_STEAL", 600))
+DELAY_NEEDED_COINS = int(os.getenv("DELAY_NEEDED_COINS", 15))
 
 if not TOKEN:
     raise ValueError("Missing DISCORD_BOT_TOKEN environment variable")
@@ -18,6 +21,7 @@ if not TOKEN:
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 last_message_time = None
+messages_debounce = {}
 last_bot_message = None
 first_message_received = False
 
@@ -26,7 +30,7 @@ async def on_ready():
     print(f"Logged in as {bot.user.name}", flush=True)
 
 @bot.event
-async def on_message(message):
+async def on_message(message: discord.Message):
     global last_message_time, last_bot_message, first_message_received
 
     if message.author == bot.user:
@@ -34,6 +38,10 @@ async def on_message(message):
 
     if message.channel.id == GENCHAT_ID:
         current_time = message.created_at
+        if messages_debounce.get(message.author.id, 0) + DELAY_NEEDED_COINS < current_time.timestamp():
+            userdata = UserDataManager(message.author.id)
+            userdata["necrocoins"] += random.randint(10, 20)
+            messages_debounce[message.author.id] = current_time.timestamp()
 
         if not first_message_received:
             first_message_received = True
@@ -44,7 +52,7 @@ async def on_message(message):
 
             if last_message_time is not None and has_role:
                 elapsed = (current_time - last_message_time).total_seconds()
-                if elapsed >= DELAY_NEEDED:
+                if elapsed >= DELAY_NEEDED_ROLE_STEAL:
                     if necromancer_role not in message.author.roles:
                       await transfer_necromancer_role(message.author, message.channel)
 
@@ -54,6 +62,10 @@ async def on_message(message):
 
 async def give_necromancer_role(member: discord.Member, channel: discord.TextChannel):
     global last_bot_message, necromancer_role_holder
+    
+    userdata = UserDataManager(member.id)
+    userdata["necrocoins"] += random.randint(100, 200)
+
     try:
         necromancer_role = channel.guild.get_role(NECROMANCER_ROLE_ID)
         await member.add_roles(necromancer_role, reason="Test")
@@ -65,7 +77,7 @@ async def give_necromancer_role(member: discord.Member, channel: discord.TextCha
             print("Previous bot message not found.", flush=True)
         except Exception as e:
             print(f"Error deleting previous bot message: {e}", flush=True)
-
+        
         last_bot_message = await channel.send(
             f"Gave the Necromancer role to {member.mention}!"
         )
@@ -84,7 +96,10 @@ async def transfer_necromancer_role(
         if necromancer_role in member.roles:
             previous_owner = member
             break
-            
+    
+    userdata = UserDataManager(new_owner.id)
+    userdata["necrocoins"] += random.randint(100, 200)
+    
     if previous_owner:
         try:
             await previous_owner.remove_roles(
@@ -147,5 +162,10 @@ async def change_color(ctx, hex_color: str):
         await ctx.send("I don't have permission to change that role's color.")
     except Exception as e:
         await ctx.send(f"An error occurred while changing the color: {e}")
+
+@bot.command(name="balance")
+async def balance(ctx: commands.Context):
+    userdata = UserDataManager(ctx.author.id)
+    await ctx.send(f"You have {userdata["necrocoins"]} coins.")
 
 bot.run(TOKEN)
