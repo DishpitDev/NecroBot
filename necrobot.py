@@ -10,6 +10,7 @@ TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 GENCHAT_ID = int(os.getenv("GENCHAT_ID", 0))
 GRAVEYARD_ID = int(os.getenv("GRAVEYARD_ID", 0))
 NECROMANCER_ROLE_ID = int(os.getenv("NECROMANCER_ROLE_ID", 0))
+DELAY_NEEDED = int(os.getenv("DELAY_NEEDED", 600))
 
 if not TOKEN:
     raise ValueError("Missing DISCORD_BOT_TOKEN environment variable")
@@ -43,7 +44,7 @@ async def on_message(message):
 
             if last_message_time is not None and has_role:
                 elapsed = (current_time - last_message_time).total_seconds()
-                if elapsed >= 600:
+                if elapsed >= DELAY_NEEDED:
                     if necromancer_role not in message.author.roles:
                       await transfer_necromancer_role(message.author, message.channel)
 
