@@ -6,6 +6,8 @@ import os
 from userdata import UserDataManager
 from dotenv import load_dotenv
 
+os.makedirs("data/users", exist_ok=True)
+
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
