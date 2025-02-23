@@ -35,6 +35,8 @@ async def on_message(message: discord.Message):
 
     if message.author == bot.user:
         return
+        
+    current_time = message.created_at
 
     if messages_debounce.get(message.author.id, 0) + DELAY_NEEDED_COINS < current_time.timestamp():
         userdata = UserDataManager(message.author.id)
